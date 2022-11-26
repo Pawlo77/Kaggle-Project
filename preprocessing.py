@@ -40,7 +40,7 @@ def numerical_dist_plot(X_train):
         plt.subplot(math.ceil(len(X_train.columns) // 4), 4, i + 1)
         plt.hist(X_train.loc[:, col], color="g", bins=100, alpha=1)
         plt.title(col)
-    plt.savefig("preprocessed_numerical_distributions.png")
+    plt.savefig("plots/preprocessed_numerical_distributions.png")
 
 
 def winsorize_col(col):
