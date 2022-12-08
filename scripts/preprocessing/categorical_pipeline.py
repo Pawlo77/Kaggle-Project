@@ -7,8 +7,8 @@ from sklearn.preprocessing import (
     OneHotEncoder,
     MinMaxScaler,
 )
-from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 
 from tools import rename_cols
 
@@ -65,18 +65,28 @@ class CategoricalPipeline:
             ]
         )
 
+        self.y_pipeline = Pipeline(
+            [
+                ("ordinal_encoder", OrdinalEncoder()),
+                ("rename1", FunctionTransformer(rename_cols)),
+            ]
+        )
+
     def fit(self, X, y=None):
-        self.pipeline.fit(X, y)
+        self.pipeline.fit(X)
+        self.y_pipeline.fit(y)
         return self
 
     def transform(self, X, y=None):
         X = self.pipeline.transform(X)
+        y = self.y_pipeline.transform(y)
+
         for col in self.sin_cos:
             X[f"{col}_sin"] = np.sin(X.loc[:, col])
             X[f"{col}_cos"] = np.cos(X.loc[:, col])
-
         X.drop(self.sin_cos, axis=1, inplace=True)
-        return X
+
+        return X, y
 
     def fit_transform(self, X, y=None):
         self.fit(X, y)

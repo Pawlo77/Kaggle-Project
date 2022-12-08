@@ -10,6 +10,7 @@ from .numerical_pipeline import NumericalPipeline
 
 def preprocess_num(src="X_train_imputed_normal.csv"):
     X_train = load_data(src)
+    y_train = load_data("y_train.csv")
 
     scale = ["duration", "campaign", "nr.employed"]
     log_transform = ["duration"]
@@ -32,8 +33,9 @@ def preprocess_num(src="X_train_imputed_normal.csv"):
         group=group,
         winsorize=winsorize,
     )
-    X_train = pipeline.fit_transform(X_train)
+    X_train, y_train = pipeline.fit_transform(X_train, y=y_train, train=True)
 
     save_data(X_train, "X_train_preprocessed_num.csv")
+    save_data(y_train, "y_train_f.csv")
     save_object(pipeline, "preprocessor_num.pkl")
     numerical_dist_plot(X_train)

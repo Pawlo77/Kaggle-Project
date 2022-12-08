@@ -7,14 +7,17 @@ import pandas as pd
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from sklearn import set_config
-from sklearn.experimental import enable_iterative_imputer
-from sklearn.impute import SimpleImputer, IterativeImputer
+from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
+from sklearn.dummy import DummyClassifier
 from sklearn.metrics import accuracy_score
 
+# from sklearn.pipeline import Pipeline
+
+from tools import MyPipeline as Pipeline
 from tools import save_data, save_object, rename_cols, load_data
 
 RANDOM_STATE = 42
@@ -67,11 +70,17 @@ class SpecialImputer:
             model = RandomForestClassifier(
                 max_depth=6, n_jobs=-1, random_state=RANDOM_STATE
             )
+            # model = SVC()
             model.fit(X_learn, y_learn)
             self.models.append(model)
 
             score = accuracy_score(y_learn, model.predict(X_learn))
-            print(f"Imputter accuracy score for seen data for {col}: {score:2.3f}")
+            base_score = accuracy_score(
+                y_learn, DummyClassifier().fit(X_learn, y_learn).predict(X_learn)
+            )
+            print(
+                f"\tImputter accuracy score for seen data for {col}: {score:2.6f}, (base: {base_score:2.6f})"
+            )
 
         return self
 
@@ -83,18 +92,19 @@ class SpecialImputer:
             X_fill = X.loc[fill, self.learn_from]
             X.loc[fill, self.targets[i]] = self.models[i].predict(X_fill)
 
-        return X
+        return X, y
 
     def fit_transform(self, X, y=None):
         self.fit(X, y)
         return self.transform(X, y)
 
 
+# only for ordinal encoded values
 def impute_special(src="X_train_preprocessed_cat.csv"):
     X_train = load_data(src)
 
     pipeline = SpecialImputer(X_train.columns)
-    X_train = pipeline.fit_transform(X_train)
+    X_train, _ = pipeline.fit_transform(X_train)
 
     save_data(X_train, "X_train_imputed_special.csv")
     save_object(pipeline, "imputer_special.pkl")

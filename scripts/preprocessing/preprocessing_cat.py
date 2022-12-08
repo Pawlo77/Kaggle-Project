@@ -9,6 +9,7 @@ from tools import load_data, save_data, save_object
 
 def preprocess_cat(src="X_train_preprocessed_num.csv"):
     X_train = load_data(src)
+    y_train = load_data("y_train_f.csv")
 
     education_categories = [
         "illiterate",
@@ -42,6 +43,7 @@ def preprocess_cat(src="X_train_preprocessed_num.csv"):
         ("poutcome", poutcome_categories),
         ("month", month_categories),
         ("day_of_week", day_of_week_categories),
+        # ("default", "auto"),
     ]
     one_hot = [
         "job",
@@ -55,7 +57,8 @@ def preprocess_cat(src="X_train_preprocessed_num.csv"):
 
     pipeline = CategoricalPipeline(ordinal=ordinal, one_hot=one_hot, sin_cos=sin_cos)
 
-    X_train = pipeline.fit_transform(X_train)
+    X_train, y_train = pipeline.fit_transform(X_train, y_train)
 
     save_data(X_train, "X_train_preprocessed_cat.csv")
+    save_data(y_train, "y_train_f.csv")
     save_object(pipeline, "preprocessor_cat.pkl")

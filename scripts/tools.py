@@ -3,6 +3,7 @@ import pickle
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 
 PICKLES_PATH = os.path.join(os.path.dirname(__file__), "..", "pickles")
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data")
@@ -67,6 +68,12 @@ def split_data(random_state=RANDOM_STATE):
     save_data(y_test, "y_test.csv")
 
 
+class MyPipeline(Pipeline):
+    def transform(self, X, y=None):
+        X = super().transform(X)
+        return X, y
+
+
 class DataPipeline:
     def __init__(
         self,
@@ -81,6 +88,6 @@ class DataPipeline:
 
     def transform(self, X, y=None):
         for pipeline in self.pipelines:
-            X = pipeline.transform(X)
+            X, y = pipeline.transform(X, y)
 
-        return X
+        return X, y

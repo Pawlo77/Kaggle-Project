@@ -67,14 +67,16 @@ class NumericalPipeline:
 
     def fit(self, X, y=None):
         self.winsorizer.fit(X, y)
-        self.pipeline.fit(X, y)
+        self.pipeline.fit(X)
         return self
 
-    def transform(self, X, y=None):
-        X = self.winsorizer.transform(X)
+    def transform(self, X, y=None, train=False):
+        if train:
+            X, y = self.winsorizer.transform(X, y)
         X = self.pipeline.transform(X)
-        return X
 
-    def fit_transform(self, X, y=None):
+        return X, y
+
+    def fit_transform(self, X, y=None, train=False):
         self.fit(X, y)
-        return self.transform(X, y)
+        return self.transform(X, y, train)

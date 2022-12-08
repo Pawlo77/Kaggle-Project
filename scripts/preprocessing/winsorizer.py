@@ -23,7 +23,7 @@ class Winsorizer:
         return self
 
     # encode each value using trained LabelEncoders except entires with nan
-    def transform(self, X, y=None):
+    def transform(self, X, y):
         to_remove = set()
 
         for col in self.columns:
@@ -33,7 +33,7 @@ class Winsorizer:
                 if not lower < X.loc[i, col] < upper:
                     to_remove.add(i)
 
-        return X.drop(to_remove, axis=0)
+        return X.drop(to_remove, axis=0), y.drop(to_remove, axis=0)
 
     def fit_transform(self, X, y=None):
         self.fit(X, y)
