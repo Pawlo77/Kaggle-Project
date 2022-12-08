@@ -17,4 +17,4 @@ def find_model():
 
     dummy = DummyClassifier().fit(X_train, y_train)
     base_score = accuracy_score(y_train, dummy.predict(X_train))
-    print(f"\tBase f1 score for seen data: {base_score:2.6f}")
+    print(f"\tBase accuracy score for seen data: {base_score:2.6f}")
