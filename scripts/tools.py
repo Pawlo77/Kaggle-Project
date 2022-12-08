@@ -8,6 +8,9 @@ PICKLES_PATH = os.path.join(os.path.dirname(__file__), "..", "pickles")
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data")
 RANDOM_STATE = 42
 
+os.makedirs(PICKLES_PATH, exist_ok=True)
+os.makedirs(DATA_PATH, exist_ok=True)
+
 
 def get_data_path(name):
     return os.path.join(DATA_PATH, name)
@@ -62,3 +65,22 @@ def split_data(random_state=RANDOM_STATE):
     save_data(X_test, "X_test.csv")
     save_data(y_train, "y_train.csv")
     save_data(y_test, "y_test.csv")
+
+
+class DataPipeline:
+    def __init__(
+        self,
+        steps=[
+            "imputer_normal",
+            "preprocessor_num",
+            "preprocessor_cat",
+            "imputer_special",
+        ],
+    ):
+        self.pipelines = [load_object(name + ".pkl") for name in steps]
+
+    def transform(self, X, y=None):
+        for pipeline in self.pipelines:
+            X = pipeline.transform(X)
+
+        return X

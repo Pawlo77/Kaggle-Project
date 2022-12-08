@@ -1,16 +1,15 @@
 import sys
 import os
-import pandas as pd
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from tools import get_data_path, save_data, save_object, load_data
-from preprocessing_tools import numerical_dist_plot
-from numerical_pipeline import NumericalPipeline
+from .preprocessing_tools import numerical_dist_plot
+from .numerical_pipeline import NumericalPipeline
 
 
-def preprocess_num():
-    X_train = load_data("X_train_imputed.csv")
+def preprocess_num(src="X_train_imputed_normal.csv"):
+    X_train = load_data(src)
 
     scale = ["duration", "campaign", "nr.employed"]
     log_transform = ["duration"]
@@ -35,10 +34,6 @@ def preprocess_num():
     )
     X_train = pipeline.fit_transform(X_train)
 
-    save_data(X_train, "X_train_preprocessed.csv")
+    save_data(X_train, "X_train_preprocessed_num.csv")
     save_object(pipeline, "preprocessor_num.pkl")
     numerical_dist_plot(X_train)
-
-
-if __name__ == "__main__":
-    preprocess_num()

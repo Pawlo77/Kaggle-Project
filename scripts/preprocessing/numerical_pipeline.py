@@ -1,5 +1,3 @@
-import pandas as pd
-
 from sklearn import set_config
 from sklearn.preprocessing import (
     StandardScaler,
@@ -11,8 +9,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
 from tools import rename_cols
-from preprocessing_tools import log_transform_col
-from winsorizer import Winsorizer
+from .preprocessing_tools import log_transform_col
+from .winsorizer import Winsorizer
 
 set_config(transform_output="pandas")
 

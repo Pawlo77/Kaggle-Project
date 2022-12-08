@@ -1,16 +1,14 @@
 import sys
 import os
-import pandas as pd
-import numpy as np
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from categorical_pipeline import make_pipeline
+from .categorical_pipeline import CategoricalPipeline
 from tools import load_data, save_data, save_object
 
 
-def preprocess_cat():
-    X_train = load_data("X_train.csv")
+def preprocess_cat(src="X_train_preprocessed_num.csv"):
+    X_train = load_data(src)
 
     education_categories = [
         "illiterate",
@@ -21,11 +19,29 @@ def preprocess_cat():
         "professional.course",
         "university.degree",
     ]
+    month_categories = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+    ]
+    day_of_week_categories = ["mon", "tue", "wed", "thu", "fri"]
+
     poutcome_categories = ["failure", "nonexistent", "success"]
 
     ordinal = [
         ("education", education_categories),
         ("poutcome", poutcome_categories),
+        ("month", month_categories),
+        ("day_of_week", day_of_week_categories),
     ]
     one_hot = [
         "job",
@@ -35,14 +51,11 @@ def preprocess_cat():
         "loan",
         "contact",
     ]
+    sin_cos = ["month", "day_of_week"]
 
-    pipeline = make_pipeline(ordinal=ordinal, one_hot=one_hot)
+    pipeline = CategoricalPipeline(ordinal=ordinal, one_hot=one_hot, sin_cos=sin_cos)
 
     X_train = pipeline.fit_transform(X_train)
 
     save_data(X_train, "X_train_preprocessed_cat.csv")
     save_object(pipeline, "preprocessor_cat.pkl")
-
-
-if __name__ == "__main__":
-    preprocess_cat()

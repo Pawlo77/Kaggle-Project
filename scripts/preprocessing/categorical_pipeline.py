@@ -1,8 +1,12 @@
-import pandas as pd
 import numpy as np
 
 from sklearn import set_config
-from sklearn.preprocessing import OrdinalEncoder, FunctionTransformer, OneHotEncoder
+from sklearn.preprocessing import (
+    OrdinalEncoder,
+    FunctionTransformer,
+    OneHotEncoder,
+    MinMaxScaler,
+)
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 
@@ -32,24 +36,48 @@ def generate_ordinal_encoders(ordinal):
     ]
 
 
-def make_pipeline(ordinal=[], one_hot=[]):
-    ordinal_encoder = ColumnTransformer(
-        generate_ordinal_encoders(ordinal),
-        remainder="passthrough",
-    )
+class CategoricalPipeline:
+    def __init__(self, ordinal=[], one_hot=[], sin_cos=[]):
+        self.ordinal_encoder = ColumnTransformer(
+            generate_ordinal_encoders(ordinal),
+            remainder="passthrough",
+        )
 
-    one_hot_encoder = ColumnTransformer(
-        [("one_hot", OneHotEncoder(sparse_output=False), one_hot)],
-        remainder="passthrough",
-    )
+        self.one_hot_encoder = ColumnTransformer(
+            [("one_hot", OneHotEncoder(sparse_output=False), one_hot)],
+            remainder="passthrough",
+        )
 
-    pipeline = Pipeline(
-        [
-            ("ordinal_encoder", ordinal_encoder),
-            ("rename1", FunctionTransformer(rename_cols)),
-            ("one_hot_encoder", one_hot_encoder),
-            ("rename2", FunctionTransformer(rename_cols)),
-        ]
-    )
+        self.sin_cos_encoder_helper = ColumnTransformer(
+            [("scaler", MinMaxScaler(feature_range=(0, 2 * np.pi)), sin_cos)],
+            remainder="passthrough",
+        )
+        self.sin_cos = sin_cos
 
-    return pipeline
+        self.pipeline = Pipeline(
+            [
+                ("ordinal_encoder", self.ordinal_encoder),
+                ("rename1", FunctionTransformer(rename_cols)),
+                ("one_hot_encoder", self.one_hot_encoder),
+                ("rename2", FunctionTransformer(rename_cols)),
+                ("sin_cos_helper", self.sin_cos_encoder_helper),
+                ("rename3", FunctionTransformer(rename_cols)),
+            ]
+        )
+
+    def fit(self, X, y=None):
+        self.pipeline.fit(X, y)
+        return self
+
+    def transform(self, X, y=None):
+        X = self.pipeline.transform(X)
+        for col in self.sin_cos:
+            X[f"{col}_sin"] = np.sin(X.loc[:, col])
+            X[f"{col}_cos"] = np.cos(X.loc[:, col])
+
+        X.drop(self.sin_cos, axis=1, inplace=True)
+        return X
+
+    def fit_transform(self, X, y=None):
+        self.fit(X, y)
+        return self.transform(X, y)
