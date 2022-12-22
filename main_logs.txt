@@ -7,4 +7,35 @@ Smart imputting missing data...
 Generating data pipeline...
 Preprocessing test data and renaming X_train...
 Finding best model...
-	Base accuracy score for seen data: 0.904816
+	Evaluating LogisticRegression:
+	- Scores on traing set:
+		- f1_score - 0.4954
+		- roc_auc_score - 0.6870
+	- Scores on test set:
+		- f1_score - 0.5254
+		- roc_auc_score - 0.7021
+
+	Evaluating XGBClassifier:
+	- Scores on traing set:
+		- f1_score - 0.8168
+		- roc_auc_score - 0.8682
+	- Scores on test set:
+		- f1_score - 0.5506
+		- roc_auc_score - 0.7328
+
+	Evaluating SVC:
+	- Scores on traing set:
+		- f1_score - 0.4016
+		- roc_auc_score - 0.6325
+	- Scores on test set:
+		- f1_score - 0.4180
+		- roc_auc_score - 0.6420
+
+	Evaluating MLPClassifier:
+	- Scores on traing set:
+		- f1_score - 0.5884
+		- roc_auc_score - 0.7416
+	- Scores on test set:
+		- f1_score - 0.5640
+		- roc_auc_score - 0.7316
+
