@@ -9,33 +9,63 @@ Preprocessing test data and renaming X_train...
 Finding best model...
 	Evaluating LogisticRegression:
 	- Scores on traing set:
-		- f1_score - 0.4954
-		- roc_auc_score - 0.6870
+		- f1_score - 0.4971
+		- roc_auc_score - 0.6879
 	- Scores on test set:
-		- f1_score - 0.5254
-		- roc_auc_score - 0.7021
+		- f1_score - 0.5273
+		- roc_auc_score - 0.7032
+Traceback (most recent call last):
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/site-packages/optuna/study/_optimize.py", line 103, in _optimize
+    completed, futures = wait(futures, return_when=FIRST_COMPLETED)
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/concurrent/futures/_base.py", line 307, in wait
+    waiter.event.wait(timeout)
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/threading.py", line 607, in wait
+    signaled = self._cond.wait(timeout)
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/threading.py", line 320, in wait
+    waiter.acquire()
+KeyboardInterrupt
 
-	Evaluating XGBClassifier:
-	- Scores on traing set:
-		- f1_score - 0.8168
-		- roc_auc_score - 0.8682
-	- Scores on test set:
-		- f1_score - 0.5506
-		- roc_auc_score - 0.7328
+During handling of the above exception, another exception occurred:
 
-	Evaluating SVC:
-	- Scores on traing set:
-		- f1_score - 0.4016
-		- roc_auc_score - 0.6325
-	- Scores on test set:
-		- f1_score - 0.4180
-		- roc_auc_score - 0.6420
-
-	Evaluating MLPClassifier:
-	- Scores on traing set:
-		- f1_score - 0.5884
-		- roc_auc_score - 0.7416
-	- Scores on test set:
-		- f1_score - 0.5640
-		- roc_auc_score - 0.7316
-
+Traceback (most recent call last):
+  File "/Users/user/Desktop/pw/k_ds/kaggle/main.py", line 53, in <module>
+    main()
+  File "/Users/user/Desktop/pw/k_ds/kaggle/main.py", line 49, in main
+    find_model()
+  File "/Users/user/Desktop/pw/k_ds/kaggle/scripts/models/search.py", line 54, in find_model
+    study.optimize(objective, n_trials=100, n_jobs=-1)
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/site-packages/optuna/study/study.py", line 400, in optimize
+    _optimize(
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/site-packages/optuna/study/_optimize.py", line 88, in _optimize
+    with ThreadPoolExecutor(max_workers=n_jobs) as executor:
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/concurrent/futures/_base.py", line 649, in __exit__
+    self.shutdown(wait=True)
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/concurrent/futures/thread.py", line 235, in shutdown
+    t.join()
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/threading.py", line 1096, in join
+    self._wait_for_tstate_lock()
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/threading.py", line 1116, in _wait_for_tstate_lock
+    if lock.acquire(block, timeout):
+KeyboardInterrupt
+Exception ignored in: <module 'threading' from '/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/threading.py'>
+Traceback (most recent call last):
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/threading.py", line 1537, in _shutdown
+    atexit_call()
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/site-packages/joblib/externals/loky/process_executor.py", line 194, in _python_exit
+    thread.join()
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/threading.py", line 1096, in join
+    self._wait_for_tstate_lock()
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/threading.py", line 1116, in _wait_for_tstate_lock
+    if lock.acquire(block, timeout):
+KeyboardInterrupt: 
+Exception ignored in atexit callback: <function _exit_function at 0x11c5ea680>
+Traceback (most recent call last):
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/multiprocessing/util.py", line 357, in _exit_function
+    p.join()
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/multiprocessing/process.py", line 149, in join
+    res = self._popen.wait(timeout)
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/site-packages/joblib/externals/loky/backend/popen_loky_posix.py", line 77, in wait
+    return self.poll(os.WNOHANG if timeout == 0.0 else 0)
+  File "/opt/homebrew/Caskroom/miniforge/base/envs/kaggle/lib/python3.10/site-packages/joblib/externals/loky/backend/popen_loky_posix.py", line 56, in poll
+    pid, sts = os.waitpid(self.pid, flag)
+KeyboardInterrupt: 
