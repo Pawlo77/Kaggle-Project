@@ -1,10 +1,14 @@
+import random
+import optuna
 import xgboost as xgb
+import numpy as np
 
 from sklearn.model_selection import cross_val_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import f1_score, roc_auc_score
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 
 RANDOM_STATE = 42
 
@@ -33,6 +37,11 @@ PARAMS[_XGB] = {
     "objective": "binary:logistic",
     "random_state": RANDOM_STATE,
     "n_jobs": -1,
+    "tree_method": "gpu_hist",
+    "gpu_id": 0,
+    "max_delta_step": 1,
+    "booster": "gbtree",
+    "sampling_method": "gradient_based",
     # "early_stopping_rounds": 10,
 }
 
@@ -50,11 +59,11 @@ def set_objective(trial, X_train, y_train, classifier_name):
         )
     elif classifier_name == _SVC:
         params = {
-            "C": trial.suggest_float("C", 1e-10, 1000, log=True),
+            "C": trial.suggest_float("C", 1e-10, 100, log=True),
             "kernel": trial.suggest_categorical(
                 "kernel", ["linear", "poly", "rbf", "sigmoid"]
             ),
-            "degree": trial.suggest_int("degree", 3, 7),
+            "degree": trial.suggest_int("degree", 3, 5),
             "gamma": trial.suggest_categorical("gamma", ["auto", "scale"]),
         }
         classifier_obj = SVC(
@@ -85,22 +94,42 @@ def set_objective(trial, X_train, y_train, classifier_name):
         )
     elif classifier_name == _XGB:
         params = {
-            "booster": trial.suggest_categorical(
-                "booster", ["gbtree", "gblinear", "dart"]
-            ),
             "grow_policy": trial.suggest_categorical(
                 "grow_policy", ["depthwise", "lossguide"]
             ),
-            # "max_leaves": trial.suggest_int("max_leaves", 0, 2000),
-            "max_depth": trial.suggest_int("max_depth", 3, 50),
-            "n_estimators": trial.suggest_int("n_estimators", 50, 1000, step=50),
+            # "max_leaves": trial.suggest_int("max_leaves", 0, 1000, step=100),
+            "eta": trial.suggest_loguniform("eta", 1e-3, 1),
+            "max_depth": trial.suggest_int("max_depth", 3, 10),
+            "n_estimators": trial.suggest_int("n_estimators", 50, 1000),
+            "alpha": trial.suggest_loguniform("alpha", 1e-2, 1),
+            "gamma": trial.suggest_loguniform("gamma", 1e-2, 1),
+            "lambda": trial.suggest_loguniform("lambda", 1e-2, 1),
         }
         classifier_obj = xgb.XGBClassifier(
             **params,
             **PARAMS[_XGB],
         )
 
-    score = cross_val_score(
-        classifier_obj, X_train, y_train, n_jobs=-1, cv=3, scoring="f1"
-    )
+    if classifier_name != _XGB:
+        score = cross_val_score(
+            classifier_obj, X_train, y_train, n_jobs=-1, cv=5, scoring="f1"
+        )
+
+    ############################################################# HELP
+    else:  # early stopping for xgb
+        cv = get_iterable_cvindices(y_train)
+
+        pruning_callback = optuna.integration.XGBoostPruningCallback(
+            trial, "validation_0-f1"
+        )
+        score = -cross_val_score(
+            classifier_obj,
+            X_train,
+            y_train,
+            scoring="f1",
+            cv=5,
+            fit_params={"callbacks": [pruning_callback]},
+            n_jobs=1,
+        )
+
     return score.mean()

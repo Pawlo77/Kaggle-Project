@@ -11,7 +11,15 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 
-from .definitions import set_objective, _LOGISTIC, _SVC, _MLP, _XGB, SCORES
+from .definitions import (
+    set_objective,
+    _LOGISTIC,
+    _SVC,
+    _MLP,
+    _XGB,
+    SCORES,
+    RANDOM_STATE,
+)
 from tools import load_data, save_object
 
 
@@ -42,13 +50,15 @@ def find_model(study_name="banking"):
         direction="maximize",
         storage="sqlite:///db.sqlite3",
         study_name=study_name,
+        pruner=optuna.pruners.SuccessiveHalvingPruner(),
+        sampler=optuna.samplers.TPESampler(seed=RANDOM_STATE),
     )
 
     for classifier_name, n_trials in [
-        (_LOGISTIC, 1000),
-        (_XGB, 200),
-        (_MLP, 10),
-        (_SVC, 5),
+        (_XGB, 20),
+        (_LOGISTIC, 500),
+        (_MLP, 50),
+        (_SVC, 25),
     ]:
         objective = partial(
             set_objective,
@@ -56,7 +66,7 @@ def find_model(study_name="banking"):
             y_train=y_train,
             classifier_name=classifier_name,
         )
-        study.optimize(objective, n_trials=n_trials, n_jobs=-1)
+        study.optimize(objective, n_trials=n_trials, n_jobs=-1, gc_after_trial=False)
 
         if classifier_name == _LOGISTIC:
             model = LogisticRegression
