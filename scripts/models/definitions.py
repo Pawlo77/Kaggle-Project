@@ -17,14 +17,14 @@ SCORES = [f1_score, roc_auc_score]
 
 PARAMS = {}
 PARAMS[_LOGISTIC] = {
-    "max_iter": 10000,
+    "max_iter": 100000,
     "random_state": RANDOM_STATE,
     "solver": "liblinear",
 }
 PARAMS[_SVC] = {"random_state": RANDOM_STATE}
 PARAMS[_MLP] = {
     "random_state": RANDOM_STATE,
-    "max_iter": 10000,
+    "max_iter": 100000,
     "early_stopping": True,
     "learning_rate": "adaptive",
     "solver": "lbfgs",
@@ -33,11 +33,13 @@ PARAMS[_XGB] = {
     "objective": "binary:logistic",
     "random_state": RANDOM_STATE,
     "n_jobs": -1,
-    "early_stopping_rounds": 10,
+    # "early_stopping_rounds": 10,
 }
 
 
 def set_objective(trial, X_train, y_train, classifier_name):
+    classifier_obj = None
+
     if classifier_name == _LOGISTIC:
         params = {
             "C": trial.suggest_float("C", 1e-10, 1000, log=True),
@@ -86,9 +88,12 @@ def set_objective(trial, X_train, y_train, classifier_name):
             "booster": trial.suggest_categorical(
                 "booster", ["gbtree", "gblinear", "dart"]
             ),
-            "grow_policy": trial.suggest_categorical("grow_policy", [0, 1]),
-            "max_depth": trial.suggest_int("max_depth", 3, 30),
-            "n_estimators": trial.suggest_int("n_estimators", 50, 300, step=10),
+            "grow_policy": trial.suggest_categorical(
+                "grow_policy", ["depthwise", "lossguide"]
+            ),
+            # "max_leaves": trial.suggest_int("max_leaves", 0, 2000),
+            "max_depth": trial.suggest_int("max_depth", 3, 50),
+            "n_estimators": trial.suggest_int("n_estimators", 50, 1000, step=50),
         }
         classifier_obj = xgb.XGBClassifier(
             **params,

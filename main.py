@@ -1,4 +1,5 @@
 import os
+import warnings
 
 from scripts.imputting import impute_normal, impute_special
 from scripts.preprocessing import preprocess_num, preprocess_cat
@@ -14,7 +15,10 @@ from scripts.tools import (
 from scripts.models import find_model
 
 
-def main():
+def main(ignore_warnings=True):
+    if ignore_warnings:
+        warnings.simplefilter("ignore")
+
     print("Spliting data into training set and test set...")
     split_data()
 

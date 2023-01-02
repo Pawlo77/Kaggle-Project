@@ -44,14 +44,19 @@ def find_model(study_name="banking"):
         study_name=study_name,
     )
 
-    for classifier_name in [_LOGISTIC, _SVC, _MLP, _XGB]:
+    for classifier_name, n_trials in [
+        (_LOGISTIC, 1000),
+        (_XGB, 200),
+        (_MLP, 10),
+        (_SVC, 5),
+    ]:
         objective = partial(
             set_objective,
             X_train=X_train,
             y_train=y_train,
             classifier_name=classifier_name,
         )
-        study.optimize(objective, n_trials=100, n_jobs=-1)
+        study.optimize(objective, n_trials=n_trials, n_jobs=-1)
 
         if classifier_name == _LOGISTIC:
             model = LogisticRegression
