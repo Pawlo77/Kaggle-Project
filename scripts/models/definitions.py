@@ -117,7 +117,6 @@ def set_objective(trial, X_train, y_train, classifier_name):
 
     ############################################################# HELP
     else:  # early stopping for xgb
-        cv = get_iterable_cvindices(y_train)
 
         pruning_callback = optuna.integration.XGBoostPruningCallback(
             trial, "validation_0-f1"
