@@ -17,6 +17,7 @@ from .definitions import (
     _SVC,
     _MLP,
     _XGB,
+    NAMES,
     SCORES,
     RANDOM_STATE,
 )
@@ -38,45 +39,53 @@ def print_scores(name, scores_train, scores_test):
             print(f"\t\t- {score_name} - {score_val:2.4f}")
 
 
+def get_model(classifier_name):
+    assert classifier_name in NAMES, "Classifier not recognized"
+
+    if classifier_name == _LOGISTIC:
+        return LogisticRegression
+    if classifier_name == _SVC:
+        return SVC
+    if classifier_name == _MLP:
+        return MLPClassifier
+    # _XGB:
+    return xgb.XGBClassifier
+
+
 def find_model(study_name="banking"):
     X_train = load_data("X_train_f.csv").to_numpy()
     y_train = load_data("y_train_f.csv").to_numpy().ravel()
     X_test = load_data("X_test_f.csv").to_numpy()
     y_test = load_data("y_test_f.csv").to_numpy().ravel()
+    d_matrix = xgb.DMatrix(X_train, label=y_train)
 
     # list of pais model object, model training score
     models = []
-    study = optuna.create_study(
-        direction="maximize",
-        storage="sqlite:///db.sqlite3",
-        study_name=study_name,
-        pruner=optuna.pruners.SuccessiveHalvingPruner(),
-        sampler=optuna.samplers.TPESampler(seed=RANDOM_STATE),
-    )
 
     for classifier_name, n_trials in [
-        (_XGB, 20),
+        (_XGB, 500),
+        (_MLP, 30),
+        (_SVC, 50),
         (_LOGISTIC, 500),
-        (_MLP, 50),
-        (_SVC, 25),
     ]:
+        study = optuna.create_study(
+            direction="maximize",
+            storage="sqlite:///db.sqlite3",
+            study_name=study_name + f"_{classifier_name}",
+            pruner=optuna.pruners.SuccessiveHalvingPruner(),
+            sampler=optuna.samplers.TPESampler(seed=RANDOM_STATE),
+            load_if_exists=True,
+        )
         objective = partial(
             set_objective,
             X_train=X_train,
             y_train=y_train,
             classifier_name=classifier_name,
+            d_matrix=d_matrix,
         )
         study.optimize(objective, n_trials=n_trials, n_jobs=-1, gc_after_trial=False)
 
-        if classifier_name == _LOGISTIC:
-            model = LogisticRegression
-        elif classifier_name == _SVC:
-            model = SVC
-        elif classifier_name == _MLP:
-            model = MLPClassifier
-        elif classifier_name == _XGB:
-            model = xgb.XGBClassifier
-
+        model = get_model(classifier_name)
         model = model(**study.best_params)
         model.fit(X_train, y_train)
 
@@ -86,7 +95,10 @@ def find_model(study_name="banking"):
         scores_train = get_scores(y_train, y_pred_train)
         scores_test = get_scores(y_test, y_pred_test)
         print_scores(model.__class__, scores_train, scores_test)
-        models.append((model, scores_test))
+        models.append((classifier_name, model, scores_test[SCORES[0].__name__]))
 
-    models.sort(key=lambda x: x[1], reverse=True)
-    save_object(models[0], "final_model.pkl")
+    models.sort(key=lambda x: x[-1], reverse=True)
+    print(f"Models order (based on {SCORES[0].__name__}):")
+    for model in models:
+        print(f"\t- {model[0]}")
+        save_object(model[1], f"model_{model[0]}.pkl")

@@ -1,1 +1,42 @@
+Spliting data into training set and test set...
+Naive imputting missing data...
+Preprocessing numerical data...
+Preprocessing categorical data...
+Smart imputting missing data...
+	Imputter accuracy score for seen data for education: 0.524558, (base: 0.302478)
+Generating data pipeline...
+Preprocessing test data and renaming X_train...
 Finding best model...
+	Evaluating XGBClassifier:
+	- Scores on traing set:
+		- roc_auc_score - 0.7452
+		- f1_score - 0.5871
+	- Scores on test set:
+		- roc_auc_score - 0.7352
+		- f1_score - 0.5623
+	Evaluating MLPClassifier:
+	- Scores on traing set:
+		- roc_auc_score - 0.8324
+		- f1_score - 0.7308
+	- Scores on test set:
+		- roc_auc_score - 0.7442
+		- f1_score - 0.5559
+	Evaluating SVC:
+	- Scores on traing set:
+		- roc_auc_score - 0.6296
+		- f1_score - 0.3917
+	- Scores on test set:
+		- roc_auc_score - 0.6391
+		- f1_score - 0.4100
+	Evaluating LogisticRegression:
+	- Scores on traing set:
+		- roc_auc_score - 0.6879
+		- f1_score - 0.4971
+	- Scores on test set:
+		- roc_auc_score - 0.7032
+		- f1_score - 0.5273
+Models order (based on roc_auc_score):
+	- MLPClassifier
+	- XGBClassifier
+	- LogisticRegression
+	- SVC
