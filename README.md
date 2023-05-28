@@ -1,13 +1,14 @@
-# Kaggle ML project
+# Kaggle ML Project
 
-Full ML project for kaggle's dataset <a href="https://www.kaggle.com/datasets/volodymyrgavrysh/bank-marketing-campaigns-dataset"> about bankking marketing campaign </a>
-<hr>
-Technical spec:
-<ul>
-    <li>To run project 
-        <ul>
-            <li>download all necessary modules from <em>requirements.txt</em></li>
-            <li>run in terminal <em>python main.py > main_logs.txt</em></li>
-        </ul>
-    </li>
-</ul>
+This project focuses on the analysis of Kaggle's dataset [regarding banking marketing campaigns](https://www.kaggle.com/datasets/volodymyrgavrysh/bank-marketing-campaigns-dataset).
+
+## Technical Specifications
+
+To run the project, follow these steps:
+
+1. Download the necessary modules listed in the `requirements.txt` file.
+2. Open a terminal or command prompt.
+3. Navigate to the project directory.
+4. Execute the following command: `python main.py > main_logs.txt`.
+
+By running the command above, the main script will be executed, and the output will be redirected to the `main_logs.txt` file for easy review and analysis.
